@@ -9,6 +9,7 @@ import ProfilePage from "./pages/profile/ProfilePage";
 import { Toaster } from "react-hot-toast";
 import { useQuery } from "@tanstack/react-query";
 import LoadingSpinner from "./components/common/LoadingSpinner";
+import ChatPage from "./pages/chat/ChatPage";
 
 function App() {
   const { data: authUser, isLoading } = useQuery({
@@ -62,6 +63,10 @@ function App() {
         <Route
           path="/profile/:username"
           element={authUser ? <ProfilePage /> : <Navigate to="/login" />}
+        />
+        <Route 
+          path="/message"
+          element={authUser ? <ChatPage /> : <Navigate to={"/login"} />}
         />
       </Routes>
       {authUser && <RightPanel />}

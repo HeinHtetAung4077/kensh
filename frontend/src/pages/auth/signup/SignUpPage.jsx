@@ -10,6 +10,7 @@ import { MdDriveFileRenameOutline } from "react-icons/md";
 
 import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import GenderCheckbox from "./GenderCheckbox";
 
 const SignUpPage = () => {
   const [formData, setFormData] = useState({
@@ -17,17 +18,19 @@ const SignUpPage = () => {
     username: "",
     fullName: "",
     password: "",
+    confirmPassword: "",
+    gender: "",
   });
 
   const { mutate, isError, isPending, error } = useMutation({
-    mutationFn: async ({ email, username, fullName, password }) => {
+    mutationFn: async ({ email, username, fullName, password, confirmPassword, gender }) => {
       try {
         const res = await fetch("/api/auth/signup", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ email, username, fullName, password }),
+          body: JSON.stringify({ email, username, fullName, password, confirmPassword, gender }),
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Failed to create account");
@@ -52,6 +55,10 @@ const SignUpPage = () => {
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+
+  const handleCheckboxChange = (gender) => {
+    setFormData({...formData, gender});
+  }
 
   //   const isError = false;
 
@@ -113,6 +120,21 @@ const SignUpPage = () => {
               value={formData.password}
             />
           </label>
+          <label className="input input-bordered rounded flex items-center gap-2">
+            <MdPassword />
+            <input
+              type="password"
+              className="grow"
+              placeholder="Confirm Password"
+              name="confirmPassword"
+              onChange={handleInputChange}
+              value={formData.confirmPassword}
+            />
+          </label>
+          {/* Gender CheckBox Goes Here */}
+          <div className="mt-2">
+              <GenderCheckbox onCheckboxChange={handleCheckboxChange} selectedGender={formData.gender} />
+            </div>
           <button className="btn rounded-full btn-primary text-white">
             {isPending ? "Loading..." : "Sign Up"}
           </button>

@@ -15,6 +15,11 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    gender: {
+      type: String,
+      required: true,
+      enum: ["male", "female"],
+    },
     email: {
       type: String,
       required: true,
@@ -56,7 +61,7 @@ const userSchema = new mongoose.Schema(
         ref: "Post",
         default: [],
       },
-    ]
+    ],
   },
   { timestamps: true }
 );

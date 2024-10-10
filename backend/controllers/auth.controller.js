@@ -4,10 +4,15 @@ import bcrypt from "bcryptjs";
 
 export const signup = async (req, res) => {
   try {
-    const { fullName, username, email, password } = req.body;
+    const { fullName, username, email, password, confirmPassword, gender } =
+      req.body;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return res.status(400).json({ error: "Invalid email format!!" });
+    }
+
+    if (password !== confirmPassword) {
+      return res.status(400).json({ error: "Passwords don't match!!" });
     }
 
     const existingUser = await User.findOne({ username });
@@ -31,11 +36,16 @@ export const signup = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    const boyProfilePic = `https://avatar.iran.liara.run/public/boy?username=${username}`;
+    const girlProfilePic = `https://avatar.iran.liara.run/public/girl?username=${username}`;
+
     const newUser = new User({
       fullName,
       username,
       email,
       password: hashedPassword,
+      gender,
+      profileImg: gender === "male" ? boyProfilePic : girlProfilePic,
     });
 
     if (newUser) {
@@ -51,7 +61,7 @@ export const signup = async (req, res) => {
         following: newUser.following,
         profileImg: newUser.profileImg,
         coverImg: newUser.coverImg,
-      });
+      })
     } else {
       res.status(400).json({ error: "Invalid User Data!!" });
     }
@@ -60,6 +70,7 @@ export const signup = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error!!" });
   }
 };
+
 export const login = async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -76,20 +87,16 @@ export const login = async (req, res) => {
     generateTokenAndSetCookie(user._id, res);
 
     res.status(200).json({
-      _id: user._id,
-      fullName: user.fullName,
-      username: user.username,
-      email: user.email,
-      followers: user.followers,
-      following: user.following,
-      profileImg: user.profileImg,
-      coverImg: user.coverImg,
+      success: true,
+      message: "Logged In successfully!!",
+      user: { ...user._doc, password: undefined },
     });
   } catch (error) {
     console.log("Error in logging up controller", error.message);
     res.status(500).json({ error: "Internal Server Error!!" });
   }
 };
+
 export const logout = async (req, res) => {
   try {
     res.cookie("jwt", "", { maxAge: 0 });
