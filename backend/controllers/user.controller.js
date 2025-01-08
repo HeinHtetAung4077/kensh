@@ -93,10 +93,12 @@ export const getSuggestedUsers = async (req, res) => {
 };
 
 export const updateUserProfile = async (req, res) => {
-  const { fullName, email,username, currentPassword, newPassword, bio, link } = req.body;
+  const { fullName, email, username, currentPassword, newPassword, bio, link } =
+    req.body;
   let { coverImg, profileImg } = req.body;
 
   const userId = req.user._id;
+
   try {
     let user = await User.findById(userId);
 
@@ -122,8 +124,9 @@ export const updateUserProfile = async (req, res) => {
           .status(400)
           .json({ error: "New Password should be at least 6 characters !!" });
       }
-      const salt = bcrypt.genSalt(10);
-      user.password = await bcrypt.hash(newPassword, salt);
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(newPassword, salt);
+      user.password = hashedPassword;
     }
     if (profileImg) {
       if (user.profileImg) {
@@ -168,8 +171,9 @@ export const updateUserProfile = async (req, res) => {
 export const getUserForSidebar = async (req, res) => {
   try {
     const loggedInUserId = req.user._id;
-    const usersFollowedByMe = await User.findById(loggedInUserId).select("following");
-
+    const usersFollowedByMe = await User.findById(loggedInUserId).select(
+      "following"
+    );
 
     const users = await User.aggregate([
       {
@@ -184,16 +188,15 @@ export const getUserForSidebar = async (req, res) => {
       },
     ]);
 
-    const filteredUsers = users.filter(
-      (user) => usersFollowedByMe.following.includes(user._id)
+    const filteredUsers = users.filter((user) =>
+      usersFollowedByMe.following.includes(user._id)
     );
 
     const suggestedUsers = filteredUsers.slice(0, 4);
     suggestedUsers.forEach((user) => (user.password = null));
     res.status(200).json(suggestedUsers);
-
-} catch (error) {
+  } catch (error) {
     console.log("Error in getUserForSidebar", error.message);
     res.status(500).json({ error: "Internal Server Error!!!" });
-}
-}
+  }
+};

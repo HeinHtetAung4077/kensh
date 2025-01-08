@@ -10,6 +10,7 @@ import { Toaster } from "react-hot-toast";
 import { useQuery } from "@tanstack/react-query";
 import LoadingSpinner from "./components/common/LoadingSpinner";
 import ChatPage from "./pages/chat/ChatPage";
+import AIgenerate from "./pages/home/AIgenerate";
 
 function App() {
   const { data: authUser, isLoading } = useQuery({
@@ -67,6 +68,10 @@ function App() {
         <Route 
           path="/message"
           element={authUser ? <ChatPage /> : <Navigate to={"/login"} />}
+        />
+        <Route 
+          path="/createAIPost"
+          element={authUser ? <AIgenerate /> : <Navigate to={"/login"} />}
         />
       </Routes>
       {authUser && <RightPanel />}

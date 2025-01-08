@@ -9,6 +9,7 @@ import dotenv from "dotenv";
 import { v2 as cloudinary } from "cloudinary";
 import connectMongoDB from "./mongoDb/connet_Db.js";
 import cookieParser from "cookie-parser";
+import { app, server } from "./socket/socket.js";
 
 dotenv.config();
 
@@ -18,7 +19,7 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const app = express();
+
 const port = process.env.PORT || 5000;
 
 app.use(express.json({ limit: "5mb" })); //* To parse req.body
@@ -30,9 +31,9 @@ app.use("/api/messages", messageRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/notifications", notificationRoutes);
-app.use("api/v1/aiImg", aiRoutes);
+app.use("/api/v1/aiImg", aiRoutes);
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Server is running on port ${port}`);
   connectMongoDB();
 });
